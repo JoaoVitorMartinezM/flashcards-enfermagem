@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { questions } from '@/lib/questions'
+import { Question } from '@/lib/questions'
 import { useRouter } from 'next/navigation'
 
 interface Results {
@@ -12,6 +12,7 @@ interface Results {
   timeSpent: number
   resultsByTheme: { [key: string]: { correct: number; total: number } }
   answers: (number | null)[]
+  questions: Question[]
   date: string
 }
 
@@ -106,12 +107,14 @@ export default function ResultadoPage() {
                 hard: { correct: 0, total: 0 }
               }
               
-              questions.forEach((q, index) => {
-                byDifficulty[q.difficulty].total++
-                if (results.answers[index] === q.correctAnswer) {
-                  byDifficulty[q.difficulty].correct++
-                }
-              })
+              if (results.questions) {
+                results.questions.forEach((q: Question, index: number) => {
+                  byDifficulty[q.difficulty].total++
+                  if (results.answers[index] === q.correctAnswer) {
+                    byDifficulty[q.difficulty].correct++
+                  }
+                })
+              }
 
               const difficultyLabels = {
                 easy: '⭐ Fácil',
@@ -185,9 +188,9 @@ export default function ResultadoPage() {
             <span className="text-2xl">{showDetails ? '−' : '+'}</span>
           </button>
 
-          {showDetails && (
+          {showDetails && results.questions && (
             <div className="mt-6 space-y-6">
-              {questions.map((question, index) => {
+              {results.questions.map((question: Question, index: number) => {
                 const userAnswer = results.answers[index]
                 const isCorrect = userAnswer === question.correctAnswer
                 const wasAnswered = userAnswer !== null
@@ -226,7 +229,7 @@ export default function ResultadoPage() {
                         <h3 className="font-semibold text-gray-800 mb-3 whitespace-pre-line">{question.question}</h3>
                         
                         <div className="space-y-2">
-                          {question.options.map((option, optIndex) => {
+                          {question.options.map((option: string, optIndex: number) => {
                             const isUserAnswer = userAnswer === optIndex
                             const isCorrectAnswer = optIndex === question.correctAnswer
                             
@@ -260,7 +263,7 @@ export default function ResultadoPage() {
                           <div className="mt-3 p-3 bg-purple-50 rounded-lg border border-purple-200">
                             <div className="font-semibold text-purple-900 mb-1">📚 Referências:</div>
                             <div className="text-sm text-purple-800">
-                              {question.references.map((ref, idx) => (
+                              {question.references.map((ref: string, idx: number) => (
                                 <div key={idx}>• {ref}</div>
                               ))}
                             </div>
